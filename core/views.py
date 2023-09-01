@@ -37,8 +37,8 @@ class HashUrlRedirectView(RedirectView):
         
         if "hashed_url" in kwargs:
             matched_urls = Url.objects.filter(hashed_url=kwargs["hashed_url"])
-            if (len(matched_urls) == 1):
-                self.url = matched_urls[0].url
+            if matched_urls.exists():
+                self.url = matched_urls.first().url
         else:
             # Note: Normally this would be put into some log file
             print(f"Url [{self.request.get_full_path()}] was redirected but had no hashed_url associated.")
