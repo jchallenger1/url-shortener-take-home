@@ -5,7 +5,6 @@ from django.views.generic.base import RedirectView
 from core.models import Url
 from core.forms import UrlForm
 
-
 class HomeView(View):
     template_name = "home.html"
 
@@ -18,7 +17,9 @@ class HomeView(View):
             return render(request, self.template_name, {"form": form})
 
         url = form.cleaned_data.get("url")
-        obj = Url.objects.create(url=url)
+        hashed_url = form.cleaned_data.get("hashed_url")
+            
+        obj = Url.objects.create(url=url, hashed_url=hashed_url)
 
         return render(
             request, self.template_name, {"short_url": obj.get_full_short_url()}
