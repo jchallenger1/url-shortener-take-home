@@ -18,12 +18,23 @@ class HomeView(View):
 
         url = form.cleaned_data.get("url")
         hashed_url = form.cleaned_data.get("hashed_url")
+        pin = form.cleaned_data.get("pin")
+        shortened_url = form.cleaned_data.get("shortened_url")
+        
+        if request.POST.get("modify"):
+            # hashed_url only contains the hash
+            obj_query_set = Url.objects.filter(hashed_url=shortened_url.split('/')[-1], pin=pin)
             
-        obj = Url.objects.create(url=url, hashed_url=hashed_url)
+            if not obj_query_set.exists() or not pin:
+                return render(request, self.template_name, {"form": form,
+                                                            "messages": ["The url and pin combination does not exist."]})
+            obj = obj_query_set.first()
+            obj.update(hashed_url=hashed_url, url=url)
+        else:
+            obj = Url.objects.create(url=url, hashed_url=hashed_url, pin=pin)
 
-        return render(
-            request, self.template_name, {"short_url": obj.get_full_short_url()}
-        )
+        return render(request, self.template_name, {"short_url": obj.get_full_short_url()})
+        
 
 class HashUrlRedirectView(RedirectView):
     # Redirects a hashedurl to the original url
